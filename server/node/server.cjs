@@ -91,7 +91,9 @@ app.use('/assets', express.static(path.join(process.cwd(), 'dist/assets'), {
 }));
 app.use(express.static(path.join(process.cwd(), 'dist'), {index: false, maxAge: 0}));
 app.use(express.json({ limit: '2gb' }));
-app.use(express.raw({ type: 'application/octet-stream', limit: '2gb' }));
+// Include application/x-risu-backup so large backup imports are handled by the
+// same 2 GB raw-body parser as application/octet-stream uploads.
+app.use(express.raw({ type: ['application/octet-stream', 'application/x-risu-backup'], limit: '2gb' }));
 app.use(express.text({ limit: '2gb' }));
 const {pipeline} = require('stream/promises')
 const https = require('https');
