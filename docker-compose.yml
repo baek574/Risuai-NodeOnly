@@ -8,4 +8,4 @@ services:
     ports:
       - 6003:6001
     volumes:
-      - /volume2/docker/risusave:/app/save
+      - /volume1/docker/risusave:/app/save
