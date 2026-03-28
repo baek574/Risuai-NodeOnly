@@ -102,8 +102,8 @@ app.use(express.json({ limit: '2gb' }));
 // Include application/x-risu-backup so large backup imports are handled by the
 // same 2 GB raw-body parser as application/octet-stream uploads.
 app.use(express.raw({
-    type: ['application/octet-stream', 'application/x-risu-backup'],
-    limit: '5gb'
+    type: ['application/octet-stream'],
+    limit: '10gb'
 }));
 app.use(express.text({ limit: '2gb' }));
 const {pipeline} = require('stream/promises')
