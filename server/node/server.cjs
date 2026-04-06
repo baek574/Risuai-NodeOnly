@@ -129,9 +129,9 @@ app.use('/assets', express.static(path.join(process.cwd(), 'dist/assets'), {
     immutable: true,
 }));
 app.use(express.static(path.join(process.cwd(), 'dist'), {index: false, maxAge: 0}));
-app.use(express.json({ limit: '100mb' }));
-app.use(express.raw({ type: 'application/octet-stream', limit: '2gb' }));
-app.use(express.text({ limit: '100mb' }));
+app.use(express.json({ limit: '200mb' }));
+app.use(express.raw({ type: 'application/octet-stream', limit: '10gb' }));
+app.use(express.text({ limit: '200mb' }));
 const {pipeline} = require('stream/promises')
 const sslPath = path.join(process.cwd(), 'server/node/ssl/certificate');
 const hubURL = 'https://sv.risuai.xyz';
