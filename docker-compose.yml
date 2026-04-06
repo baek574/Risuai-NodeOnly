@@ -3,12 +3,9 @@ name: risuai-nodeonly
 services:
   risuai:
     container_name: risuai-nodeonly
-    image: ghcr.io/mrbart3885/risuai-nodeonly:latest
+    build: .
     restart: always
     ports:
       - 6001:6001
     volumes:
-      - risuai-save:/app/save
-
-volumes:
-  risuai-save:
+      - /volume1/docker/risusave:/app/save
