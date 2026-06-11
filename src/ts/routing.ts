@@ -11,7 +11,7 @@
 // number — that file is the source of truth and changes there should update
 // this map too.
 
-import { settingsOpen, SettingsMenuIndex, SystemSubmenuIndex } from "./stores.svelte";
+import { settingsOpen, SettingsMenuIndex, SystemSubmenuIndex, AccessibilitySubmenuIndex } from "./stores.svelte";
 
 export const SettingsRoute = {
     None: -1 as const,
@@ -30,6 +30,8 @@ export const SettingsRoute = {
     Prompt: 13 as const,
     Module: 14 as const,
     Hotkey: 15 as const,
+    ModelPreset: 16 as const,
+    PromptPreset: 17 as const,
     RemoteAccess: 21 as const,
     System: 22 as const,
     InlayImageGallery: 23 as const,
@@ -43,19 +45,38 @@ export const SystemTab = {
     Dashboard: 0 as const,
     Backups: 1 as const,
     Logs: 2 as const,
+    PluginStorage: 3 as const,
 } as const;
 
 export type SystemTabValue = (typeof SystemTab)[keyof typeof SystemTab];
+
+/** Sub-tab indices inside the Accessibility settings page (mirrors the tab
+ *  order in AccessibilitySettings.svelte). */
+export const AccessibilityTab = {
+    Editing: 0 as const,
+    Scroll: 1 as const,
+    Sidebar: 2 as const,
+    Others: 3 as const,
+} as const;
+
+export type AccessibilityTabValue = (typeof AccessibilityTab)[keyof typeof AccessibilityTab];
 
 /**
  * Open the settings panel and navigate to a specific page (and optional
  * System sub-tab). Use this from anywhere in the app that needs to deep-link
  * into settings.
  */
-export function openSettings(route: SettingsRouteValue, systemTab?: SystemTabValue) {
+export function openSettings(
+    route: SettingsRouteValue,
+    systemTab?: SystemTabValue,
+    accessibilityTab?: AccessibilityTabValue,
+) {
     SettingsMenuIndex.set(route);
     if (systemTab !== undefined) {
         SystemSubmenuIndex.set(systemTab);
+    }
+    if (accessibilityTab !== undefined) {
+        AccessibilitySubmenuIndex.set(accessibilityTab);
     }
     settingsOpen.set(true);
 }

@@ -5,7 +5,6 @@
  */
 
 import type { SettingItem } from './types';
-import { language } from "src/lang";
 import { getCurrentChat, getDatabase, loadTogglesFromChat } from '../storage/database.svelte';
 
 export const accessibilitySettingsItems: SettingItem[] = [
@@ -19,12 +18,34 @@ export const accessibilitySettingsItems: SettingItem[] = [
         keywords: ['reroll', 'regenerate', 'confirm', 'message']
     },
     {
-        id: 'acc.sendWithEnter',
-        type: 'check',
-        labelKey: 'sendWithEnter',
-        bindKey: 'sendWithEnter',
-        helpKey: 'sendWithEnter',
-        keywords: ['send', 'enter', 'keyboard', 'submit']
+        id: 'acc.sendKeyPC',
+        type: 'radio',
+        labelKey: 'sendKeyPC',
+        bindKey: 'sendKeyPC',
+        helpKey: 'sendKeyPC',
+        options: {
+            selectOptions: [
+                { value: 'enter', labelKey: 'sendKeyEnter' },
+                { value: 'ctrl-enter', labelKey: 'sendKeyCtrlEnter' },
+                { value: 'shift-enter', labelKey: 'sendKeyShiftEnter' },
+                { value: 'button', labelKey: 'sendKeyButton' },
+            ],
+        },
+        keywords: ['send', 'enter', 'keyboard', 'submit', 'pc', 'desktop']
+    },
+    {
+        id: 'acc.sendKeyMobile',
+        type: 'radio',
+        labelKey: 'sendKeyMobile',
+        bindKey: 'sendKeyMobile',
+        helpKey: 'sendKeyMobile',
+        options: {
+            selectOptions: [
+                { value: 'button', labelKey: 'sendKeyButton' },
+                { value: 'enter', labelKey: 'sendKeyEnter' },
+            ],
+        },
+        keywords: ['send', 'enter', 'keyboard', 'submit', 'mobile']
     },
     {
         id: 'acc.fixedChatTextarea',
@@ -172,12 +193,12 @@ export const accessibilitySettingsItems: SettingItem[] = [
         condition: (ctx) => ctx.db.autoScrollToNewMessage && !ctx.db.alwaysScrollToNewMessage,
         options: {
             selectOptions: [
-                { value: 'bottom-center', label: language.newMessageButtonBottomCenter },
-                { value: 'bottom-right', label: language.newMessageButtonBottomRight },
-                { value: 'bottom-left', label: language.newMessageButtonBottomLeft },
-                { value: 'floating-circle', label: language.newMessageButtonFloatingCircle },
-                { value: 'right-center', label: language.newMessageButtonRightCenter },
-                { value: 'top-bar', label: language.newMessageButtonTopBar }
+                { value: 'bottom-center', labelKey: 'newMessageButtonBottomCenter' },
+                { value: 'bottom-right', labelKey: 'newMessageButtonBottomRight' },
+                { value: 'bottom-left', labelKey: 'newMessageButtonBottomLeft' },
+                { value: 'floating-circle', labelKey: 'newMessageButtonFloatingCircle' },
+                { value: 'right-center', labelKey: 'newMessageButtonRightCenter' },
+                { value: 'top-bar', labelKey: 'newMessageButtonTopBar' }
             ]
         }
     },
@@ -206,20 +227,51 @@ export const accessibilitySettingsItems: SettingItem[] = [
         keywords: ['left', 'bar', 'collapse', 'toggle', 'mobile', 'sidebar', 'hide'],
     },
     {
-        id: 'acc.enableRisuaiProTools',
-        type: 'check',
-        labelKey: 'enableRisuaiProTools',
-        bindKey: 'enableRisuaiProTools',
-        helpKey: 'enableRisuaiProTools',
-        keywords: ['pro', 'tools', 'accessibility'],
+        id: 'acc.nodeOnlyScrollButtonType',
+        type: 'select',
+        labelKey: 'nodeOnlyScrollButtonType',
+        bindKey: 'nodeOnlyScrollButtonType',
+        helpKey: 'nodeOnlyScrollButtonType',
+        options: {
+            selectOptions: [
+                { value: 'four', labelKey: 'scrollButtonTypeFour' },
+                { value: 'two', labelKey: 'scrollButtonTypeTwo' },
+                { value: 'off', labelKey: 'scrollButtonTypeOff' },
+            ],
+        },
+        keywords: ['scroll', 'button', 'navigate', 'message'],
     },
     {
-        id: 'acc.useNodeOnlyScrollButton',
-        type: 'check',
-        labelKey: 'useNodeOnlyScrollButton',
-        bindKey: 'useNodeOnlyScrollButton',
-        helpKey: 'useNodeOnlyScrollButton',
-        keywords: ['scroll', 'button', 'navigate', 'message'],
+        id: 'acc.modelModeLock',
+        type: 'radio',
+        labelKey: 'modelModeLockLabel',
+        bindKey: 'nodeOnlyModelModeLock',
+        helpKey: 'modelModeLock',
+        options: {
+            selectOptions: [
+                { value: 'legacy', labelKey: 'modelModeLockLegacy', descriptionKey: 'modelModeLockLegacyDesc' },
+                { value: 'preset', labelKey: 'modelModeLockPreset', descriptionKey: 'modelModeLockPresetDesc' },
+                { value: 'none', labelKey: 'modelModeLockNone', descriptionKey: 'modelModeLockNoneDesc' },
+            ],
+        },
+        keywords: ['model', 'mode', 'legacy', 'preset', 'binding', 'lock', 'sidebar'],
+    },
+    {
+        id: 'acc.newChatModelMode',
+        type: 'select',
+        labelKey: 'newChatModelModeLabel',
+        helpKey: 'newChatModelMode',
+        condition: (ctx) => (ctx.db.nodeOnlyModelModeLock ?? 'none') === 'none',
+        // Backed by the existing boolean useModelPresetByDefault (preset=true).
+        getValue: (db) => (db.useModelPresetByDefault ? 'preset' : 'legacy'),
+        setValue: (db, val) => { db.useModelPresetByDefault = val === 'preset'; },
+        options: {
+            selectOptions: [
+                { value: 'legacy', labelKey: 'modelModeLegacy' },
+                { value: 'preset', labelKey: 'modelModePreset' },
+            ],
+        },
+        keywords: ['model', 'mode', 'new', 'chat', 'default', 'legacy', 'preset'],
     },
     {
         id: 'acc.showModelInSidebar',
@@ -268,3 +320,53 @@ export const accessibilitySettingsItems: SettingItem[] = [
         }
     }
 ];
+
+// Tab groupings (the flat array above stays the source of truth + search index).
+const pick = (ids: string[]): SettingItem[] =>
+    ids
+        .map((id) => accessibilitySettingsItems.find((i) => i.id === id))
+        .filter((i): i is SettingItem => !!i);
+
+export const accessibilityEditingItems = pick([
+    'acc.confirmReroll',
+    'acc.sendKeyPC',
+    'acc.sendKeyMobile',
+    'acc.fixedChatTextarea',
+    'acc.clickToEdit',
+    'acc.enableBlockPartialEdit',
+    'acc.enableDragPartialEdit',
+    'acc.longPressToPopupEditor',
+]);
+
+export const accessibilityScrollItems = pick([
+    'acc.autoScrollToNewMessage',
+    'acc.alwaysScrollToNewMessage',
+    'acc.newMessageButtonStyle',
+    'acc.nodeOnlyScrollButtonType',
+]);
+
+export const accessibilitySidebarItems = pick([
+    'acc.modelModeLock',
+    'acc.newChatModelMode',
+    'acc.showMenuChatList',
+    'acc.showMenuHypaMemoryModal',
+    'acc.sideMenuRerollButton',
+    'acc.hamburgerButtonBottom',
+    'acc.hideLeftBarCollapseButton',
+    'acc.showModelInSidebar',
+    'acc.showPresetInSidebar',
+    'acc.showPersonaInSidebar',
+]);
+
+export const accessibilityOtherItems = pick([
+    'acc.botSettingAtStart',
+    'acc.goCharacterOnImport',
+    'acc.createFolderOnBranch',
+    'acc.localActivationInGlobalLorebook',
+    'acc.requestInfoInsideChat',
+    'acc.inlayErrorResponse',
+    'acc.bulkEnabling',
+    'acc.showTranslationLoading',
+    'acc.disableMobileDragDrop',
+    'acc.disableToggleBinding',
+]);
